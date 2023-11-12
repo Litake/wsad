@@ -1,0 +1,145 @@
+import cv2
+import numpy as np
+from sklearn.cluster import KMeans
+from selenium import webdriver
+from selenium.webdriver.common.keys import Keys
+import time
+import random
+
+class SimpleBot:
+    def __init__(self):
+        self.responses = {
+            "hello": ["Hi there!", "Hello!", "Hey!"],
+            "how are you": ["I'm good, thanks!", "I'm doing well."],
+            "detect colors": ["Sure! Let me analyze the colors for you.", "Analyzing colors now."],
+            "click link": ["Sure! Let me click the link for you.", "Clicking the link now."],
+            "process image": ["Sure! Let me process the image for you.", "Processing the image now."],
+            "bye": ["Goodbye!", "See you later!", "Bye!"],
+            "default": ["I don't know what to say.", "I'm still learning."]
+        }
+
+    def respond(self, message):
+        message = message.lower()
+        if message in self.responses:
+            return random.choice(self.responses[message])
+        else:
+            return random.choice(self.responses["default"])
+
+def detect_colors_and_click(image_path, num_colors=5, link_xpath=None):
+    # Read the image
+    img = cv2.imread(image_path)
+    
+    # Reshape the image to be a list of pixels
+    pixels = img.reshape((-1, 3))
+
+    # Convert the data type to float32
+    pixels = np.float32(pixels)
+
+    # Perform k-means clustering
+    kmeans = KMeans(n_clusters=num_colors)
+    kmeans.fit(pixels)
+
+    # Get the cluster centers and round the values
+    centers = np.uint8(kmeans.cluster_centers_)
+
+    # Map the labels to the centers
+    segmented_image = centers[kmeans.labels_]
+
+    # Reshape the segmented image back to the original shape
+    segmented_image = segmented_image.reshape(img.shape)
+
+    # Display the original and segmented images
+    cv2.imshow('Original Image', img)
+    cv2.imshow('Segmented Image', segmented_image)
+    cv2.waitKey(0)
+    cv2.destroyAllWindows()
+
+    # Click on the link using Selenium
+    if link_xpath:
+        driver = webdriver.Chrome()
+        driver.get("https://www.example.com")  # Replace with the actual URL
+        time.sleep(3)  # Wait for the page to load
+
+        link = driver.find_element_by_xpath(link_xpath)
+        link.click()
+
+        time.sleep(5)  # Wait for a few seconds to see the result
+        driver.quit()
+
+def process_image(image_path, num_colors=5):
+    # Read the image
+    img = cv2.imread(image_path)
+    
+    # Reshape the image to be a list of pixels
+    pixels = img.reshape((-1, 3))
+
+    # Convert the data type to float32
+    pixels = np.float32(pixels)
+
+    # Perform k-means clustering
+    kmeans = KMeans(n_clusters=num_colors)
+    kmeans.fit(pixels)
+
+    # Get the cluster centers and round the values
+    centers = np.uint8(kmeans.cluster_centers_)
+
+    # Map the labels to the centers
+    segmented_image = centers[kmeans.labels_]
+
+    # Reshape the segmented image back to the original shape
+    segmented_image = segmented_image.reshape(img.shape)
+
+    # Display the original and segmented images
+    cv2.imshow('Original Image', img)
+    cv2.imshow('Segmented Image', segmented_image)
+    cv2.waitKey(0)
+    cv2.destroyAllWindows()
+
+def google_search(query):
+    driver = webdriver.Chrome()
+    driver.get("https://www.google.com/")
+    time.sleep(2)
+
+    search_box = driver.find_element_by_name("q")
+    search_box.send_keys(query)
+    search_box.send_keys(Keys.RETURN)
+
+    time.sleep(5)  # Wait for search results
+    driver.quit()
+
+def main():
+    bot = SimpleBot()
+    print("Bot: Hello! Type 'bye' to exit.")
+
+    while True:
+        user_input = input("You: ")
+
+        if user_input.lower() == 'bye':
+            print("Bot: Goodbye!")
+            break
+
+        response = bot.respond(user_input)
+        print(f"Bot: {response}")
+
+        if "detect colors" in user_input:
+            image_path = "path/to/your/image.jpg"
+            detect_colors_and_click(image_path, num_colors=5)
+
+        elif "click link" in user_input:
+            link_xpath = "//*[@id='your-link-id']"  # Replace with the actual XPath of the link
+            detect_colors_and_click(image_path, num_colors=5, link_xpath=link_xpath)
+
+        elif "process image" in user_input:
+            image_path = "path/to/your/image.jpg"
+            process_image(image_path, num_colors=5)
+
+        elif "google search" in user_input:
+            query = user_input.replace("google search", "").strip()
+            google_search(query)
+
+        elif "what is" in user_input:
+            query = user_input.replace("what is", "").strip()
+            google_search(query)
+
+if __name__ == "__main__":
+    main()
