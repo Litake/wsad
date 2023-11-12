@@ -1,0 +1,30 @@
+import requests
+import execjs
+import cv2
+import numpy as np
+from sklearn.cluster import KMeans
+from selenium import webdriver
+from selenium.webdriver.common.keys import Keys
+import time
+import random
+
+class SimpleBot:
+    def __init__(self):
+        self.responses = {
+            "hello": ["สวัสดีครับ!", "สวัสดีค่ะ!", "หวัดดีครับ!"],
+            "how are you": ["สบายดีครับ!", "สบายดีค่ะ!"],
+            "detect colors": ["แน่ใจครับ! ฉันจะวิเคราะห์สีให้คุณ", "กำลังวิเคราะห์สีเดี๋ยวนี้ครับ"],
+            "click link": ["แน่ใจครับ! ฉันจะคลิกลิงค์ให้คุณ", "กำลังคลิกลิงค์เดี๋ยวนี้ครับ"],
+            "process image": ["แน่ใจครับ! ฉันจะประมวลผลรูปภาพให้คุณ", "กำลังประมวลผลรูปภาพเดี๋ยวนี้ครับ"],
+            "bye": ["ลาก่อนครับ!", "แล้วเจอกันค่ะ!", "บายครับ!"],
+            "default": ["ไม่รู้จะตอบยังไงครับ", "กำลังเรียนรู้อยู่ครับ"]
+        }
+
+    def respond(self, message):
+        message = message.lower()
+        if message in self.responses:
+            return random.choice(self.responses[message])
+        else:
+            return random.choice(self.responses["default"])
+
+# The rest of the code remains unchanged
